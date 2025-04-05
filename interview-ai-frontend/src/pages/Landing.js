@@ -7,8 +7,3 @@ function Landing() {
   }
   return <div>Welcome! <a href="/upload">Upload Resume</a></div>;
 }
-
-
-
-
-
