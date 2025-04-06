@@ -18,9 +18,10 @@ const InterviewSetupPage = () => {
 
   const handleStartInterview = () => {
     const finalJD = selectedJD === 'custom' ? customJD : selectedJD;
-    console.log('JD sent to LLM:', finalJD); // later send this to backend
-
-    navigate('/interview');
+    console.log('JD sent to LLM:', finalJD);
+  
+    // ✅ Pass finalJD as route state
+    navigate('/interview', { state: { role: finalJD } });
   };
 
   return (

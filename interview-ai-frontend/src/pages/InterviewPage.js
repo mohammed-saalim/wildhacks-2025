@@ -2,9 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Box, Button, Container, Typography, Paper, Stack, TextField } from '@mui/material';
 import EmotionRecorder from './EmotionRecorder';
 import { generateQuestions, evaluateAnswers } from '../utils/gemini';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const InterviewPage = ({ role = "React Developer" }) => {
+const InterviewPage = () => {
+  const location = useLocation();
+
+  // 👇 Use passed role or default to React Developer
+  const role = location.state?.role || "React Developer";
   const [conversation, setConversation] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
