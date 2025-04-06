@@ -1,37 +1,52 @@
-// FeedbackPage.jsx
 import React, { useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
+  Box,
+  Container,
+  Paper,
+  Typography,
+  Divider,
+  Grid,
+  Alert
+} from '@mui/material';
+import {
+  PieChart,
+  Pie,
+  Cell,
   Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
+  Legend,
+  ResponsiveContainer
 } from "recharts";
 
+// Custom pie slice colors
+const PIE_COLORS = ['#6366f1', '#818cf8', '#4f46e5', '#a5b4fc'];
+
 const FeedbackPage = () => {
+  const location = useLocation();
+  const { emotionData, videoUrl, evaluation } = location.state || {};
 
   useEffect(() => {
     console.log("📥 FeedbackPage received:", { emotionData, videoUrl, evaluation });
   }, []);
-  
-  
-  const location = useLocation();
-  const { emotionData, videoUrl, evaluation } = location.state || {};
 
   if (!emotionData && !evaluation && !videoUrl) {
-    return <div className="p-6">No feedback data available.</div>;
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography variant="h6" color="text.secondary">No feedback data available.</Typography>
+      </Box>
+    );
   }
 
-  const emotionChartData =
-    emotionData?.emotion_scores
-      ? Object.entries(emotionData.emotion_scores).map(([emotion, value]) => ({
-          emotion,
-          value: (value * 100).toFixed(1),
+  // Filter key emotions
+  const filteredEmotions = ['happy', 'neutral', 'surprised', 'angry'];
+  const emotionChartData = emotionData?.emotion_scores
+    ? Object.entries(emotionData.emotion_scores)
+        .filter(([emotion]) => filteredEmotions.includes(emotion))
+        .map(([emotion, value]) => ({
+          name: emotion,
+          value: parseFloat((value * 100).toFixed(1))
         }))
-      : [];
+    : [];
 
   const summaryFeedback = () => {
     if (!emotionData || !emotionData.candidate_present) {
@@ -54,62 +69,160 @@ const FeedbackPage = () => {
     return summary;
   };
 
+  const score = (
+    (emotionData.is_confident ? 0.4 : 0) +
+    (1 - emotionData.stress_level) * 0.3 +
+    (emotionData.focus_score * 0.2) +
+    (emotionData.is_confused ? 0 : 0.1)
+  ) * 100;
+
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-blue-800">Interview Feedback 📊</h1>
+    <Box sx={{ minHeight: '100vh', py: 6, background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)' }}>
+      <Container maxWidth="md">
+        <Paper
+          elevation={6}
+          sx={{
+            borderRadius: 6,
+            p: 5,
+            backgroundColor: 'white',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+          }}
+        >
+          <Typography variant="h4" fontWeight={700} gutterBottom sx={{ color: '#3f3d56' }}>
+            Interview Feedback 📊
+          </Typography>
 
-      {videoUrl && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">🎬 Interview Recording</h2>
-          <video
-            controls
-            src={videoUrl}
-            className="rounded-lg border shadow-md w-full max-w-2xl"
+          <Divider sx={{ my: 3 }} />
+
+          {videoUrl && (
+            <Box sx={{ mb: 6 }}>
+              <Typography variant="h6" fontWeight={600} gutterBottom>
+                🎬 Interview Recording
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <video
+                  controls
+                  src={videoUrl}
+                  style={{
+                    width: '75%',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.1)'
+                  }}
+                />
+              </Box>
+            </Box>
+          )}
+
+          {emotionData?.candidate_present && (
+            <>
+              <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
+                😊 Emotion Summary
+              </Typography>
+
+              <ResponsiveContainer width="100%" height={350}>
+                <PieChart>
+                  <Pie
+                    data={emotionChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={110}
+                    paddingAngle={4}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {emotionChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+
+              {/* Derived Metrics */}
+              <Box sx={{ mt: 6 }}>
+                <Typography variant="h6" fontWeight={600} gutterBottom>
+                  📈 Derived Metrics
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Paper
+                      elevation={1}
+                      sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}
+                    >
+                      <Typography fontWeight={600}>🔥 Stress Level</Typography>
+                      <Typography>{(emotionData.stress_level * 100).toFixed(1)}%</Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <Paper elevation={1} sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}>
+                      <Typography fontWeight={600}>🌀 Confused?</Typography>
+                      <Typography>{emotionData.is_confused ? "Yes" : "No"}</Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={6} sm={3}>
+                    <Paper elevation={1} sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}>
+                      <Typography fontWeight={600}>💪 Confident?</Typography>
+                      <Typography>{emotionData.is_confident ? "Yes" : "No"}</Typography>
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Paper elevation={1} sx={{ p: 2, borderRadius: 2, backgroundColor: '#f8fafc' }}>
+                      <Typography fontWeight={600}>🎯 Focus Score</Typography>
+                      <Typography>{(emotionData.focus_score * 100).toFixed(1)}%</Typography>
+                    </Paper>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Summary */}
+              <Alert severity="warning" sx={{ mt: 4 }}>
+                <Typography fontWeight={600}>📝 Summary</Typography>
+                <Typography>{summaryFeedback()}</Typography>
+              </Alert>
+            </>
+          )}
+
+          {/* Fallback if candidate not visible */}
+          {!emotionData?.candidate_present && emotionData && (
+            <Alert severity="error" sx={{ mt: 4 }}>
+              ⚠️ Candidate was not present in most frames
+            </Alert>
+          )}
+
+          {/* Evaluation Block */}
+          {evaluation && (
+            <Alert severity="success" sx={{ mt: 5 }}>
+              <Typography fontWeight={600}>🧠 Gemini Evaluation</Typography>
+              <Typography whiteSpace="pre-line">{evaluation}</Typography>
+            </Alert>
+          )}
+
+          {/* 🔥 Scorecard Block */}
+          <Box
+            sx={{
+              mt: 6,
+              p: 3,
+              borderRadius: 3,
+              background: 'linear-gradient(to right, #6366f1, #818cf8)',
+              color: 'white',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+              textAlign: 'center'
+            }}
           >
-            Sorry, your browser does not support the video tag.
-          </video>
-        </div>
-      )}
-
-      {emotionData?.candidate_present ? (
-        <>
-          <h2 className="text-xl font-semibold mb-4">😊 Emotion Summary</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={emotionChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="emotion" />
-              <YAxis unit="%" />
-              <Tooltip />
-              <Bar dataKey="value" fill="#3182ce" />
-            </BarChart>
-          </ResponsiveContainer>
-
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-2">📈 Derived Metrics</h2>
-            <ul className="list-disc pl-6">
-              <li><strong>🔥 Stress Level:</strong> {(emotionData.stress_level * 100).toFixed(1)}%</li>
-              <li><strong>🌀 Confused?</strong> {emotionData.is_confused ? "Yes" : "No"}</li>
-              <li><strong>💪 Confident?</strong> {emotionData.is_confident ? "Yes" : "No"}</li>
-              <li><strong>🎯 Focus Score:</strong> {(emotionData.focus_score * 100).toFixed(1)}%</li>
-            </ul>
-          </div>
-
-          <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400">
-            <h2 className="text-lg font-semibold mb-1">📝 Summary</h2>
-            <p>{summaryFeedback()}</p>
-          </div>
-        </>
-      ) : emotionData ? (
-        <p className="text-red-600 font-semibold mt-4">⚠️ Candidate was not present in most frames</p>
-      ) : null}
-
-      {evaluation && (
-        <div className="mt-10 p-4 bg-green-50 border-l-4 border-green-400">
-          <h2 className="text-lg font-semibold mb-2">🧠 Gemini Evaluation</h2>
-          <p className="whitespace-pre-wrap">{evaluation}</p>
-        </div>
-      )}
-    </div>
+            <Typography variant="h5" fontWeight={700}>📋 Overall Interview Score</Typography>
+            <Typography variant="h2" fontWeight={800} sx={{ my: 1 }}>
+              {Math.round(score)}%
+            </Typography>
+            <Typography variant="subtitle1">
+              Based on confidence, focus, emotion balance, and stress levels
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 
