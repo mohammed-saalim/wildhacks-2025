@@ -1,10 +1,38 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Container, Tooltip } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Tooltip,
+  Menu,
+  MenuItem,
+  IconButton,
+} from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/InView-light.png';
-import userIcon from '../assets/user-icon-white.png'; // 🔁 Add your user icon here
+import userIcon from '../assets/user-icon-white.png';
 
 function Navbar() {
+  const isLoggedIn = !!localStorage.getItem('token');
+  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user'); // if you're storing user data too
+    handleMenuClose();
+    navigate('/'); // redirect to home
+    window.location.reload(); // refresh to update nav visibility
+  };
+
+  const navItems = isLoggedIn
+    ? ['Home', 'Interview', 'Upload']
+    : ['Home'];
+
   return (
     <Box sx={{ background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)', py: 4 }}>
       <Container maxWidth="md">
@@ -45,47 +73,89 @@ function Navbar() {
             />
           </Typography>
 
-          {/* Navigation and Login Icon */}
+          {/* Navigation + User */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            {['Home', 'Interview', 'Upload'].map((label, index) => (
-              <Button
-                key={index}
-                component={Link}
-                to={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
-                sx={{
-                  color: 'white',
-                  fontWeight: 600,
-                  textTransform: 'none',
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    transform: 'scale(1.05)',
-                    borderRadius: '1rem'
-                  }
-                }}
-              >
-                {label}
-              </Button>
-            ))}
+            {navItems.map((label, index) => {
+              const route =
+                label.toLowerCase() === 'home'
+                  ? '/'
+                  : label.toLowerCase() === 'interview'
+                  ? '/interview-setup'
+                  : `/${label.toLowerCase()}`;
 
-            {/* User Icon */}
-            <Tooltip title="Login / Signup">
-              <Link to="/authenticate">
-                <img
-                  src={userIcon}
-                  alt="Login/Signup"
-                  style={{
-                    height: '32px',
-                    width: '32px',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s ease-in-out',
-                    filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.4))',
+              return (
+                <Button
+                  key={index}
+                  component={Link}
+                  to={route}
+                  sx={{
+                    color: 'white',
+                    fontWeight: 600,
+                    textTransform: 'none',
+                    transition: 'all 0.3s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      transform: 'scale(1.05)',
+                      borderRadius: '1rem'
+                    }
                   }}
-                  onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-                  onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
-                />
-              </Link>
-            </Tooltip>
+                >
+                  {label}
+                </Button>
+              );
+            })}
+
+            {isLoggedIn ? (
+              <>
+                <Tooltip title="Account">
+                  <IconButton onClick={handleMenuOpen}>
+                    <img
+                      src={userIcon}
+                      alt="User Icon"
+                      style={{
+                        height: '32px',
+                        width: '32px',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                        filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.4))',
+                      }}
+                    />
+                  </IconButton>
+                </Tooltip>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleMenuClose}
+                  sx={{ mt: '40px' }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>
+                    Profile
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Tooltip title="Login / Signup">
+                <Link to="/authenticate">
+                  <img
+                    src={userIcon}
+                    alt="User Icon"
+                    style={{
+                      height: '32px',
+                      width: '32px',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease-in-out',
+                      filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.4))',
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+                    onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+                  />
+                </Link>
+              </Tooltip>
+            )}
           </Box>
         </Box>
       </Container>
