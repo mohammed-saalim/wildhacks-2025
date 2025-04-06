@@ -1,10 +1,8 @@
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
+import React from 'react';
+import { AppBar, Toolbar, Typography, Button, Box, Container, Tooltip } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { Box, Container } from '@mui/material';
-import logo from '../assets/InView-light.png'; // make sure this path is correct
+import logo from '../assets/InView-light.png';
+import userIcon from '../assets/user-icon-white.png'; // 🔁 Add your user icon here
 
 function Navbar() {
   return (
@@ -21,10 +19,9 @@ function Navbar() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            transform: 'perspective(1000px) rotateX(1deg)',
-            transition: 'all 0.3s ease-in-out'
           }}
         >
+          {/* Logo */}
           <Typography
             component={Link}
             to="/"
@@ -37,24 +34,28 @@ function Navbar() {
             <img
               src={logo}
               alt="InView logo"
-              style={{  height: '85px',        // ⬆️ Increased height
-                maxWidth: '150px',     // ⬅️ Avoids stretching
+              style={{
+                height: '85px',
+                maxWidth: '150px',
                 maxHeight: '100%',
                 objectFit: 'contain',
                 marginRight: '10px',
-                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))' }}
+                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
+              }}
             />
           </Typography>
-          <Box sx={{ display: 'flex', gap: 3 }}>
+
+          {/* Navigation and Login Icon */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
             {['Home', 'Interview', 'Upload'].map((label, index) => (
               <Button
                 key={index}
-                color="inherit"
                 component={Link}
                 to={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
                 sx={{
                   color: 'white',
                   fontWeight: 600,
+                  textTransform: 'none',
                   transition: 'all 0.3s ease-in-out',
                   '&:hover': {
                     backgroundColor: 'rgba(255,255,255,0.1)',
@@ -66,6 +67,25 @@ function Navbar() {
                 {label}
               </Button>
             ))}
+
+            {/* User Icon */}
+            <Tooltip title="Login / Signup">
+              <Link to="/authenticate">
+                <img
+                  src={userIcon}
+                  alt="Login/Signup"
+                  style={{
+                    height: '32px',
+                    width: '32px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s ease-in-out',
+                    filter: 'drop-shadow(0 0 3px rgba(255,255,255,0.4))',
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+                  onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+                />
+              </Link>
+            </Tooltip>
           </Box>
         </Box>
       </Container>
