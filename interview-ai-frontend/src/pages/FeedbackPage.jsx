@@ -1,5 +1,5 @@
 // FeedbackPage.jsx
-import React from "react";
+import React, { useEffect } from 'react';
 import { useLocation } from "react-router-dom";
 import {
   BarChart,
@@ -12,19 +12,29 @@ import {
 } from "recharts";
 
 const FeedbackPage = () => {
-  const location = useLocation();
-  const { emotionData, videoUrl } = location.state || {};
 
-  if (!emotionData || !videoUrl) {
+  useEffect(() => {
+    console.log("📥 FeedbackPage received:", { emotionData, videoUrl, evaluation });
+  }, []);
+  
+  
+  const location = useLocation();
+  const { emotionData, videoUrl, evaluation } = location.state || {};
+
+  if (!emotionData && !evaluation && !videoUrl) {
     return <div className="p-6">No feedback data available.</div>;
   }
 
-  const emotionChartData = Object.entries(emotionData.emotion_scores).map(
-    ([emotion, value]) => ({ emotion, value: (value * 100).toFixed(1) })
-  );
+  const emotionChartData =
+    emotionData?.emotion_scores
+      ? Object.entries(emotionData.emotion_scores).map(([emotion, value]) => ({
+          emotion,
+          value: (value * 100).toFixed(1),
+        }))
+      : [];
 
   const summaryFeedback = () => {
-    if (!emotionData.candidate_present) {
+    if (!emotionData || !emotionData.candidate_present) {
       return "The candidate was not consistently visible in the camera. Please ensure a stable setup next time.";
     }
 
@@ -35,7 +45,11 @@ const FeedbackPage = () => {
     summary += ", and ";
     summary += emotionData.is_confused ? "confused" : "clear";
     summary += " demeanor. Focus levels were ";
-    summary += emotionData.focus_score > 0.75 ? "excellent." : emotionData.focus_score > 0.5 ? "moderate." : "low.";
+    summary += emotionData.focus_score > 0.75
+      ? "excellent."
+      : emotionData.focus_score > 0.5
+      ? "moderate."
+      : "low.";
 
     return summary;
   };
@@ -44,18 +58,20 @@ const FeedbackPage = () => {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-blue-800">Interview Feedback 📊</h1>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">🎬 Interview Recording</h2>
-        <video
-          controls
-          src={videoUrl}
-          className="rounded-lg border shadow-md w-full max-w-2xl"
-        >
-          Sorry, your browser does not support the video tag.
-        </video>
-      </div>
+      {videoUrl && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">🎬 Interview Recording</h2>
+          <video
+            controls
+            src={videoUrl}
+            className="rounded-lg border shadow-md w-full max-w-2xl"
+          >
+            Sorry, your browser does not support the video tag.
+          </video>
+        </div>
+      )}
 
-      {emotionData.candidate_present ? (
+      {emotionData?.candidate_present ? (
         <>
           <h2 className="text-xl font-semibold mb-4">😊 Emotion Summary</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -83,8 +99,15 @@ const FeedbackPage = () => {
             <p>{summaryFeedback()}</p>
           </div>
         </>
-      ) : (
+      ) : emotionData ? (
         <p className="text-red-600 font-semibold mt-4">⚠️ Candidate was not present in most frames</p>
+      ) : null}
+
+      {evaluation && (
+        <div className="mt-10 p-4 bg-green-50 border-l-4 border-green-400">
+          <h2 className="text-lg font-semibold mb-2">🧠 Gemini Evaluation</h2>
+          <p className="whitespace-pre-wrap">{evaluation}</p>
+        </div>
       )}
     </div>
   );

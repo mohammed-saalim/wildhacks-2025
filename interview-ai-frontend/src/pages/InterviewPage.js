@@ -1,40 +1,119 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Button, Container, Typography, Paper, Stack } from '@mui/material';
-import EmotionRecorder from './EmotionRecorder'; // adjust if the path differs
+import { Box, Button, Container, Typography, Paper, Stack, TextField } from '@mui/material';
+import EmotionRecorder from './EmotionRecorder';
+import { generateQuestions, evaluateAnswers } from '../utils/gemini';
 import { useNavigate } from 'react-router-dom';
 
-const InterviewPage = () => {
+const InterviewPage = ({ role = "React Developer" }) => {
+  const [conversation, setConversation] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [userInput, setUserInput] = useState('');
+  const [interviewStarted, setInterviewStarted] = useState(false);
+  const [interviewEnded, setInterviewEnded] = useState(false);
+  const [evaluation, setEvaluation] = useState(null);
+  const [qaPairs, setQaPairs] = useState([]);
+
+
   const recorderRef = useRef(null);
+  const containerRef = useRef(null);
   const navigate = useNavigate();
 
-  const [conversation, setConversation] = useState([
-    { sender: 'llm', message: 'Tell me about yourself.' }
-  ]);
-  const [interviewStarted, setInterviewStarted] = useState(false);
-  const [emotionData, setEmotionData] = useState(null);
-  const containerRef = useRef(null);
-
-  const handleStartInterview = () => {
-    if (recorderRef.current?.start) {
-      recorderRef.current.start();
-      setInterviewStarted(true);
-    }
-  };
-
-  const handleEndInterview = () => {
-    if (recorderRef.current?.stop) {
-      recorderRef.current.stop((data, videoUrl) => {
-        setEmotionData(data);
-        navigate("/feedback", { state: { emotionData: data, videoUrl } });
-      });
-    }
-  };
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const qns = await generateQuestions(role);
+      setQuestions(qns);
+      if (qns.length > 0) {
+        setConversation([{ sender: 'llm', message: qns[0] }]);
+      }
+    };
+    fetchQuestions();
+  }, [role]);
 
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [conversation]);
+
+  
+
+  const handleStartInterview = () => {
+    setInterviewStarted(true);
+    recorderRef.current?.start();
+  };
+
+  const handleNextQuestion = () => {
+    if (!userInput.trim()) return;
+  
+    const updatedAnswers = [...answers, userInput];
+    console.log("📩 handleNextQuestion() - Updated Answers:", updatedAnswers);
+  
+    setAnswers(updatedAnswers);
+    setConversation(prev => [...prev, { sender: 'user', message: userInput }]);
+    setUserInput('');
+  
+    const nextIndex = currentQuestionIndex + 1;
+  
+    if (nextIndex < questions.length) {
+      setCurrentQuestionIndex(nextIndex);
+      setConversation(prev => [...prev, { sender: 'llm', message: questions[nextIndex] }]);
+    } else {
+      setInterviewEnded(true);
+  
+      // ✅ Create question-answer pairs
+      const qaPairs = questions.map((q, i) => ({
+        question: q,
+        answer: updatedAnswers[i] || ""
+      }));
+  
+      console.log("🧠 Passing QA pairs to handleFinishInterview():", qaPairs);
+      handleFinishInterview(qaPairs);
+    }
+  };
+  
+  
+  
+  const handleFinishInterview = async (finalPairs = []) => {
+    if (!Array.isArray(finalPairs)) {
+      console.error("❌ Invalid finalPairs format:", finalPairs);
+      return;
+    }
+  
+    recorderRef.current?.stop();
+  
+    const result = recorderRef.current?.getResult?.();
+    console.log("📦 Final QA pairs to evaluate:", finalPairs);
+  
+    let geminiEvaluation = null;
+  
+    try {
+      geminiEvaluation = await evaluateAnswers(finalPairs, role);
+      setEvaluation(geminiEvaluation);
+      console.log("✅ Evaluation from Gemini:", geminiEvaluation);
+    } catch (err) {
+      console.error("❌ Evaluation error:", err);
+    }
+  
+    navigate("/feedback", {
+      state: {
+        emotionData: result?.emotionData ?? null,
+        videoUrl: result?.videoUrl ?? null,
+        evaluation: geminiEvaluation
+      }
+    });
+  };
+  
+    
+   
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleNextQuestion();
+    }
+  };
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #e0e7ff, #f8fafc)', py: 6 }}>
@@ -44,60 +123,71 @@ const InterviewPage = () => {
         </Typography>
 
         <Box position="relative">
-          <Paper
-            elevation={4}
-            sx={{
-              p: 3,
-              minHeight: '450px',
-              backgroundColor: '#ffffff',
-              borderRadius: 4,
-              boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-              overflowY: 'auto',
-              maxHeight: '450px',
-              scrollbarWidth: 'thin',
-              '&::-webkit-scrollbar': { width: '6px' },
-              '&::-webkit-scrollbar-thumb': { backgroundColor: '#cbd5e1', borderRadius: '4px' }
-            }}
-            ref={containerRef}
-          >
-            {conversation.map((msg, idx) => (
-              <Typography
-                key={idx}
-                sx={{
-                  mb: 2,
-                  textAlign: msg.sender === 'user' ? 'right' : 'left',
-                  fontWeight: msg.sender === 'llm' ? 600 : 400,
-                  color: msg.sender === 'llm' ? '#1e293b' : '#475569'
-                }}
-              >
-                {msg.sender === 'llm' ? 'Interviewer: ' : 'You: '} {msg.message}
-              </Typography>
-            ))}
+          <Paper elevation={4} sx={{ p: 3, minHeight: '450px', borderRadius: 4, overflowY: 'auto' }} ref={containerRef}>
+            <Box sx={{ mb: 2 }}>
+              {conversation.map((msg, idx) => (
+                <Box
+                  key={idx}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                    mb: 1
+                  }}
+                >
+                  <Box
+                    sx={{
+                      maxWidth: '75%',
+                      bgcolor: msg.sender === 'user' ? '#d8b4fe' : '#f1f5f9',
+                      p: 2,
+                      borderRadius: 3
+                    }}
+                  >
+                    <Typography variant="body2">
+                      {msg.sender === 'llm' ? `Interviewer: ${msg.message}` : `You: ${msg.message}`}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           </Paper>
-
-          {/* Webcam Overlay */}
           <EmotionRecorder ref={recorderRef} />
         </Box>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center" mt={4}>
+        {interviewStarted && !interviewEnded && (
+          <Box mt={3}>
+            <TextField
+              fullWidth
+              multiline
+              rows={3}
+              placeholder="Type your answer..."
+              variant="outlined"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </Box>
+        )}
+
+        <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
           {!interviewStarted ? (
             <Button
               variant="contained"
-              color="primary"
               onClick={handleStartInterview}
               sx={{ minWidth: 180, backgroundColor: '#3b82f6', textTransform: 'none' }}
             >
               Start Interview
             </Button>
           ) : (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleEndInterview}
-              sx={{ minWidth: 180, textTransform: 'none', fontWeight: 600 }}
-            >
-              End Interview
-            </Button>
+            <>
+              {currentQuestionIndex < questions.length && (
+                <Button variant="contained" onClick={handleNextQuestion}>Next Question</Button>
+              )}
+              {answers.length >= 3 && (
+                <Button variant="outlined" color="error" onClick={handleFinishInterview}>
+                  Finish Interview
+                </Button>
+              )}
+            </>
           )}
         </Stack>
       </Container>

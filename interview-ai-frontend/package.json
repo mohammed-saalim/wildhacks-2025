@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@google/generative-ai": "^0.24.0",
     "@mui/material": "^7.0.1",
     "@okta/okta-auth-js": "^7.11.3",
     "@okta/okta-react": "^6.9.0",

@@ -67,9 +67,7 @@ const ResumeUploader = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Box sx={{ backgroundColor: '#1976d2', padding: '12px 24px', borderRadius: '8px' }}>
-        <Typography variant="h5" sx={{ color: 'white' }}>Interview Hero</Typography>
-      </Box>
+
 
       <Typography variant="h4" sx={{ mt: 4, mb: 2, fontWeight: 'bold' }}>Upload Resume</Typography>
 
