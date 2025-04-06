@@ -1,7 +1,10 @@
 # dependencies
 /node_modules
 
-# production build
+# testing
+/coverage
+
+# production
 /build
 
 # misc
@@ -12,9 +15,16 @@
 .env.test.local
 .env.production.local
 
-# IDEs and editors
-.vscode/
-.idea/
-*.swp
+# log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-#
+# VSCode
+.vscode/
+
+# Mac OS metadata
+*.DS_Store
+
+# optional: uploads or saved media from dev
+uploads/

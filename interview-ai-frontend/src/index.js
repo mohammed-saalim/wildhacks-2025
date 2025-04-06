@@ -15,10 +15,17 @@ const oktaAuth = new OktaAuth({
   pkce: true
 });
 
+
+const restoreOriginalUri = async (_oktaAuth, originalUri) => {
+  window.location.replace(originalUri);
+};
+
 // Render with createRoot
 const root = createRoot(document.getElementById('root'));
 root.render(
-  <Security oktaAuth={oktaAuth}>
+  <Security oktaAuth={oktaAuth}
+    restoreOriginalUri={restoreOriginalUri}
+  >
     <App />
   </Security>
 );
