@@ -40,6 +40,9 @@ export async function evaluateAnswers(pairs, role) {
       console.error("❌ Gemini: evaluateAnswers received invalid pairs:", pairs);
       return "Invalid data for evaluation.";
     }
+
+    console.log("📤 Final QA pairs sent to Gemini:", JSON.stringify(pairs, null, 2));
+
   
     const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
     const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";

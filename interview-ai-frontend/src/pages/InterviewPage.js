@@ -60,34 +60,29 @@ const InterviewPage = ({ role = "React Developer" }) => {
       setCurrentQuestionIndex(nextIndex);
       setConversation(prev => [...prev, { sender: 'llm', message: questions[nextIndex] }]);
     } else {
-      setInterviewEnded(true);
-  
-      // ✅ Create question-answer pairs
-      const qaPairs = questions.map((q, i) => ({
-        question: q,
-        answer: updatedAnswers[i] || ""
-      }));
-  
-      console.log("🧠 Passing QA pairs to handleFinishInterview():", qaPairs);
-      handleFinishInterview(qaPairs);
+      setInterviewEnded(true); // ✅ Let user manually click "Finish Interview"
+      // ⛔️ Don't call handleFinishInterview() automatically here
     }
   };
+    
   
+  const handleFinishInterview = async (maybeAnswers) => {
+    const finalPairs =
+      Array.isArray(maybeAnswers) && maybeAnswers.every(p => typeof p === 'object' && p.question)
+        ? maybeAnswers
+        : answers.map((answer, i) => ({ question: questions[i], answer }));
   
-  
-  const handleFinishInterview = async (finalPairs = []) => {
     if (!Array.isArray(finalPairs)) {
-      console.error("❌ Invalid finalPairs format:", finalPairs);
+      console.error("❌ Invalid finalPairs format:", maybeAnswers);
       return;
     }
   
-    recorderRef.current?.stop();
-  
-    const result = recorderRef.current?.getResult?.();
     console.log("📦 Final QA pairs to evaluate:", finalPairs);
   
-    let geminiEvaluation = null;
+    await recorderRef.current?.stop();
+    const result = recorderRef.current?.getResult?.();
   
+    let geminiEvaluation = null;
     try {
       geminiEvaluation = await evaluateAnswers(finalPairs, role);
       setEvaluation(geminiEvaluation);
@@ -98,13 +93,13 @@ const InterviewPage = ({ role = "React Developer" }) => {
   
     navigate("/feedback", {
       state: {
-        emotionData: result?.emotionData ?? null,
-        videoUrl: result?.videoUrl ?? null,
+        emotionData: result?.emotionData || null,
+        videoUrl: result?.videoUrl || null,
         evaluation: geminiEvaluation
       }
     });
   };
-  
+   
     
    
 
