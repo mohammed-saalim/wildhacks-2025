@@ -3,8 +3,13 @@ import HomePage from "./pages/HomePage";
 import InterviewPage from "./pages/InterviewPage";
 import ResumeUploader from "./pages/ResumeUploader";
 import Navbar from "./components/Navbar";
+import FeedbackPage from "./pages/FeedbackPage";
+
+
 
 function App() {
+
+
   return (
     <Router>
       <Navbar />
@@ -12,6 +17,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/interview" element={<InterviewPage />} />
         <Route path="/upload" element={<ResumeUploader />} />
+        <Route path="/feedback" element={<FeedbackPage />} />
       </Routes>
     </Router>
   );
