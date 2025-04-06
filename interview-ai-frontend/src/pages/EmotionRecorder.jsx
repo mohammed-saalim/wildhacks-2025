@@ -7,16 +7,39 @@ const EmotionRecorder = forwardRef((props, ref) => {
   const recordedChunksRef = useRef([]);
   const intervalRef = useRef(null);
   const recordedVideoUrlRef = useRef(null);
-  const [emotionData, setEmotionData] = useState(null);
+  const [latestEmotion, setLatestEmotion] = useState(null);
+  const emotionSnapshots = useRef([]);
+  
   const [recorderReady, setRecorderReady] = useState(false);
 
   useImperativeHandle(ref, () => ({
     start: startInterview,
     stop: () => stopInterview(), // returns a Promise now
-    getResult: () => ({
-      emotionData,
-      videoUrl: recordedVideoUrlRef.current
-    })
+    getResult: () => {
+      const presentFrames = emotionSnapshots.current.filter(e => e?.candidate_present);
+    
+      if (presentFrames.length === 0) {
+        return {
+          emotionData: {
+            candidate_present: false,
+            emotion_scores: {},
+            stress_level: 0.0,
+            is_confused: false,
+            is_confident: false,
+            focus_score: 0.0
+          },
+          videoUrl: recordedVideoUrlRef.current
+        };
+      }
+    
+      const last = presentFrames[presentFrames.length - 1];
+    
+      return {
+        emotionData: last,
+        videoUrl: recordedVideoUrlRef.current
+      };
+    }
+    
   }));
 
   useEffect(() => {
@@ -82,7 +105,9 @@ const EmotionRecorder = forwardRef((props, ref) => {
         body: formData
       });
       const data = await res.json();
-      setEmotionData(data);
+      emotionSnapshots.current.push(data); // ⬅️ Save each frame's emotion result
+      setLatestEmotion(data); // Keep track of the most recent one
+      console.log("📸 Emotion response:", data);
     } catch (err) {
       console.error('Backend error:', err);
     }
@@ -95,6 +120,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
     }
 
     recordedChunksRef.current = [];
+    emotionSnapshots.current = []; 
     mediaRecorderRef.current.start();
     intervalRef.current = setInterval(() => captureAndSendFrame(), 1000);
   };
@@ -109,8 +135,10 @@ const EmotionRecorder = forwardRef((props, ref) => {
           const videoUrl = URL.createObjectURL(blob);
           recordedVideoUrlRef.current = videoUrl;
   
-          // 🔁 Send one final frame before resolving
+          // 🔁 Give webcam a moment to stabilize, then send final frame
+          await new Promise(r => setTimeout(r, 500)); // 0.5s delay
           await captureAndSendFrame();
+  
           resolve();
         };
   
@@ -121,6 +149,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
       }
     });
   };
+  
   
   return (
     <video

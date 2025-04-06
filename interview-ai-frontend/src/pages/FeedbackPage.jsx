@@ -186,11 +186,12 @@ const FeedbackPage = () => {
           )}
 
           {/* Fallback if candidate not visible */}
-          {!emotionData?.candidate_present && emotionData && (
-            <Alert severity="error" sx={{ mt: 4 }}>
-              ⚠️ Candidate was not present in most frames
-            </Alert>
-          )}
+          {emotionData?.candidate_present === false ? (
+  <Alert severity="warning">⚠️ Candidate was not detected in any frames.</Alert>
+) : emotionData?.candidate_present === true && emotionData?.focus_score < 0.5 ? (
+  <Alert severity="info">⚠️ Candidate focus or visibility may have fluctuated.</Alert>
+) : null}
+
 
           {/* Evaluation Block */}
           {evaluation && (
