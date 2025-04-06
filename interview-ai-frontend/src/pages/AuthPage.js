@@ -7,25 +7,57 @@ import {
   Typography,
   Button,
   Stack,
-  Fade
+  Fade,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  OutlinedInput,
+  Chip
 } from '@mui/material';
 import axios from 'axios';
+
+const skillsList = ['React', 'JavaScript', 'Node.js', 'Python', 'Tailwind', 'TypeScript', 'MUI', 'Redux', 'Next.js'];
+const certsList = ['AWS Certified Developer', 'Google UX Design', 'Microsoft Azure Fundamentals', 'Certified Kubernetes Administrator'];
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
+    email: '',
     username: '',
     password: '',
+    domain: '',
+    skills: [],
+    certifications: []
   });
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
-    setFormData({ name: '', username: '', password: '' }); // reset fields
+    setFormData({
+      name: '',
+      email: '',
+      username: '',
+      password: '',
+      domain: '',
+      skills: [],
+      certifications: []
+    });
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleMultiChange = (e, field) => {
+    const {
+      target: { value }
+    } = e;
+    setFormData((prev) => ({
+      ...prev,
+      [field]: typeof value === 'string' ? value.split(',') : value
+    }));
   };
 
   const handleAuth = async () => {
@@ -37,9 +69,12 @@ const AuthPage = () => {
       ? { usernameOrEmail: formData.username, password: formData.password }
       : {
           name: formData.name,
-          email: `${formData.username}`, // just dummy for now
+          email: formData.email,
           username: formData.username,
-          password: formData.password
+          password: formData.password,
+          domain: formData.domain,
+          skills: formData.skills,
+          certifications: formData.certifications
         };
 
     try {
@@ -48,7 +83,7 @@ const AuthPage = () => {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         alert('✅ Logged in!');
-        window.location.href = '/profile'; // or redirect as needed
+        window.location.href = '/profile';
       } else {
         alert('✅ Registered! You can now log in.');
         setIsLogin(true);
@@ -92,23 +127,106 @@ const AuthPage = () => {
 
             <Stack spacing={3}>
               {!isLogin && (
-                <TextField
-                  label="Full Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  fullWidth
-                  variant="outlined"
-                />
+                <>
+                  <TextField
+                    label="Full Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                  />
+
+                  <TextField
+                    label="Email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                  />
+
+                  <TextField
+                    label="Username"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                  />
+
+                  <TextField
+                    label="Domain"
+                    name="domain"
+                    value={formData.domain}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                  />
+
+                  <FormControl fullWidth>
+                    <InputLabel>Skills</InputLabel>
+                    <Select
+                      multiple
+                      name="skills"
+                      value={formData.skills}
+                      onChange={(e) => handleMultiChange(e, 'skills')}
+                      input={<OutlinedInput label="Skills" />}
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((value) => (
+                            <Chip key={value} label={value} />
+                          ))}
+                        </Box>
+                      )}
+                    >
+                      {skillsList.map((skill) => (
+                        <MenuItem key={skill} value={skill}>
+                          {skill}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  <FormControl fullWidth>
+                    <InputLabel>Certifications</InputLabel>
+                    <Select
+                      multiple
+                      name="certifications"
+                      value={formData.certifications}
+                      onChange={(e) => handleMultiChange(e, 'certifications')}
+                      input={<OutlinedInput label="Certifications" />}
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((value) => (
+                            <Chip key={value} label={value} />
+                          ))}
+                        </Box>
+                      )}
+                    >
+                      {certsList.map((cert) => (
+                        <MenuItem key={cert} value={cert}>
+                          {cert}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </>
               )}
-              <TextField
-                label="Username"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                fullWidth
-                variant="outlined"
-              />
+
+              {isLogin && (
+                <>
+                  <TextField
+                    label="Username or Email"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    fullWidth
+                    variant="outlined"
+                  />
+                </>
+              )}
+
               <TextField
                 label="Password"
                 name="password"
