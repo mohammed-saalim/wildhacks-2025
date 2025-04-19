@@ -23,6 +23,8 @@ const InterviewPage = () => {
 
   const recorderRef = useRef(null);
   const containerRef = useRef(null);
+  const inputRef = useRef(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -58,6 +60,11 @@ const InterviewPage = () => {
   const handleStartInterview = () => {
     setInterviewStarted(true);
     recorderRef.current?.start();
+
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
   const handleNextQuestion = () => {
@@ -189,6 +196,7 @@ const InterviewPage = () => {
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
+              inputRef={inputRef}
             />
           </Box>
         )}
