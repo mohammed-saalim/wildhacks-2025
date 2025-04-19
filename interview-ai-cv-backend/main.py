@@ -30,6 +30,8 @@ db = client["inview"]
 users_collection = db["users"]
 
 JWT_SECRET = os.getenv("JWT_SECRET")
+backend_base_url = os.getenv("REACT_APP_BACKEND_URL", "http://localhost:8000")
+
 
 class UserRegister(BaseModel):
     name: str
@@ -49,7 +51,10 @@ app = FastAPI()
 # CORS for frontend dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+    "http://localhost:3000",
+    "https://wildhacks-mu.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -220,7 +225,7 @@ async def upload_video(video: UploadFile = File(...)):
     filepath = os.path.join(UPLOAD_DIR, filename)
     with open(filepath, "wb") as buffer:
         shutil.copyfileobj(video.file, buffer)
-    return {"video_url": f"http://localhost:8000/videos/{filename}"}
+    return {"video_url": f"{backend_base_url}/videos/{filename}"}
 
 @app.post("/analyze-emotion/")
 async def analyze_emotion(video: UploadFile = File(...)):

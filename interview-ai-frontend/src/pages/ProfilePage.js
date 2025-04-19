@@ -15,6 +15,8 @@ import { useNavigate } from 'react-router-dom';
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -34,7 +36,7 @@ const ProfilePage = () => {
 
 
       try {
-        const response = await axios.get('http://localhost:8000/api/auth/me', {
+        const response = await axios.get(`${backendBaseUrl}/api/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

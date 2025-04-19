@@ -12,6 +12,8 @@ const EmotionRecorder = forwardRef((props, ref) => {
   const [recorderReady, setRecorderReady] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [initAttempts, setInitAttempts] = useState(0);
+  const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+
 
   useImperativeHandle(ref, () => ({
     start: startInterview,
@@ -90,7 +92,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
     formData.append('video', blob, 'frame.jpg');
 
     try {
-      const res = await fetch('http://127.0.0.1:8000/analyze-emotion/', {
+      const res = await fetch(`${backendBaseUrl}/analyze-emotion/`, {
         method: 'POST',
         body: formData
       });

@@ -19,6 +19,8 @@ import axios from 'axios';
 
 const skillsList = ['React', 'JavaScript', 'Node.js', 'Python', 'Tailwind', 'TypeScript', 'MUI', 'Redux', 'Next.js'];
 const certsList = ['AWS Certified Developer', 'Google UX Design', 'Microsoft Azure Fundamentals', 'Certified Kubernetes Administrator'];
+const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -62,8 +64,8 @@ const AuthPage = () => {
 
   const handleAuth = async () => {
     const endpoint = isLogin
-      ? 'http://localhost:8000/api/auth/login'
-      : 'http://localhost:8000/api/auth/register';
+      ? `${backendBaseUrl}/api/auth/login`
+      : `${backendBaseUrl}/api/auth/register`;
 
     const payload = isLogin
       ? { usernameOrEmail: formData.username, password: formData.password }
