@@ -62,8 +62,8 @@ const AuthPage = () => {
 
   const handleAuth = async () => {
     const endpoint = isLogin
-      ? 'http://localhost:5000/api/auth/login'
-      : 'http://localhost:5000/api/auth/register';
+      ? 'http://localhost:8000/api/auth/login'
+      : 'http://localhost:8000/api/auth/register';
 
     const payload = isLogin
       ? { usernameOrEmail: formData.username, password: formData.password }
@@ -82,10 +82,8 @@ const AuthPage = () => {
       if (isLogin) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        alert('✅ Logged in!');
-        window.location.href = '/profile';
+        window.location.href = '/';
       } else {
-        alert('✅ Registered! You can now log in.');
         setIsLogin(true);
       }
     } catch (err) {
@@ -257,6 +255,27 @@ const AuthPage = () => {
               >
                 {isLogin ? 'Login' : 'Register'}
               </Button>
+              <Button
+                variant="text"
+                onClick={() => {
+                  localStorage.setItem("token", "demo-token"); // fake token if needed
+                  localStorage.setItem("user", JSON.stringify({ name: "Demo User", username: "demo" }));
+                  window.location.href = '/';
+                }}
+                sx={{
+                  color: '#6b7280',
+                  textTransform: 'none',
+                  mt: 1,
+                  fontWeight: 500,
+                  '&:hover': {
+                    color: '#4f46e5',
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Skip Login / Continue as Guest →
+              </Button>
+
 
               <Box textAlign="center">
                 <Typography variant="body2" sx={{ color: '#6b7280' }}>

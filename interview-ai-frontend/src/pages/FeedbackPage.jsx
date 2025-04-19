@@ -89,7 +89,7 @@ const FeedbackPage = () => {
           }}
         >
           <Typography variant="h4" fontWeight={700} gutterBottom sx={{ color: '#3f3d56' }}>
-            Interview Feedback 📊
+            Interview Feedback
           </Typography>
 
           <Divider sx={{ my: 3 }} />
@@ -97,7 +97,7 @@ const FeedbackPage = () => {
           {videoUrl && (
             <Box sx={{ mb: 6 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                🎬 Interview Recording
+                Interview Recording
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <video
@@ -116,7 +116,7 @@ const FeedbackPage = () => {
           {emotionData?.candidate_present && (
             <>
               <Typography variant="h6" fontWeight={600} sx={{ mb: 2 }}>
-                😊 Emotion Summary
+                Emotion Summary
               </Typography>
 
               <ResponsiveContainer width="100%" height={350}>
@@ -193,34 +193,71 @@ const FeedbackPage = () => {
 ) : null}
 
 
-          {/* Evaluation Block */}
+          {/* Evaluation Block
           {evaluation && (
             <Alert severity="success" sx={{ mt: 5 }}>
               <Typography fontWeight={600}>🧠 Gemini Evaluation</Typography>
               <Typography whiteSpace="pre-line">{evaluation}</Typography>
             </Alert>
-          )}
+          )} */}
+          {evaluation && (
+          <Alert severity="success" sx={{ mt: 5 }}>
+            <Typography fontWeight={600}>Gemini Evaluation</Typography>
+                      <Typography whiteSpace="pre-line">
+            {typeof evaluation.summary === 'string' 
+              ? evaluation.summary 
+              : JSON.stringify(evaluation, null, 2)}
+          </Typography>
 
-          {/* 🔥 Scorecard Block */}
+          </Alert>
+        )}
+
+
+         {/* 🎯 Emotion Score Block */}
+        <Box
+          sx={{
+            mt: 6,
+            p: 3,
+            borderRadius: 3,
+            background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+            color: 'white',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+            textAlign: 'center'
+          }}
+        >
+          <Typography variant="h5" fontWeight={700}>Emotion-Based Score</Typography>
+          <Typography variant="h2" fontWeight={800} sx={{ my: 1 }}>
+            {Math.round(score)}%
+          </Typography>
+          <Typography variant="subtitle1">
+            Based on body language indicators (confidence, focus, stress, confusion)
+          </Typography>
+        </Box>
+
+       
+        {typeof evaluation?.score === 'number' && (
           <Box
             sx={{
-              mt: 6,
+              mt: 4,
               p: 3,
               borderRadius: 3,
-              background: 'linear-gradient(to right, #6366f1, #818cf8)',
+              background: 'linear-gradient(to right, #10b981, #34d399)',
               color: 'white',
               boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
               textAlign: 'center'
             }}
           >
-            <Typography variant="h5" fontWeight={700}>📋 Overall Interview Score</Typography>
+            <Typography variant="h5" fontWeight={700}>Gemini Evaluation</Typography>
             <Typography variant="h2" fontWeight={800} sx={{ my: 1 }}>
-              {Math.round(score)}%
+              {Math.round(evaluation.score)}%
             </Typography>
             <Typography variant="subtitle1">
-              Based on confidence, focus, emotion balance, and stress levels
+              Based on your answers and overall communication clarity
             </Typography>
           </Box>
+        )}
+
+
         </Paper>
       </Container>
     </Box>

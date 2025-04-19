@@ -25,7 +25,18 @@ const InterviewSetupPage = () => {
   };
 
   return (
-    <Box sx={{ background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)', minHeight: '100vh', py: 8 }}>
+    // <Box sx={{ background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)', minHeight: '100vh', py: 8 }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          py: 8,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/apple-garage.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+
       <Container maxWidth="sm">
         <Paper
           elevation={6}
@@ -57,12 +68,12 @@ const InterviewSetupPage = () => {
               mb: selectedJD === 'custom' ? 2 : 4
             }}
           >
-            <MenuItem value="" disabled>Select a JD</MenuItem>
+            <MenuItem value="" disabled>General Knowledge Interview</MenuItem>
             <MenuItem value="Frontend Developer at SaaS Co.">Frontend Developer at SaaS Co.</MenuItem>
             <MenuItem value="Backend Engineer at FinTech">Backend Engineer at FinTech</MenuItem>
             <MenuItem value="Data Scientist at HealthAI">Data Scientist at HealthAI</MenuItem>
             <MenuItem value="DevOps Specialist at CloudStart">DevOps Specialist at CloudStart</MenuItem>
-            <MenuItem value="custom">Custom JD</MenuItem>
+            <MenuItem value="custom">Custom Job Description</MenuItem>
           </Select>
 
           {selectedJD === 'custom' && (

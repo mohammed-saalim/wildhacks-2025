@@ -3,12 +3,14 @@ import { Box, Button, Container, Typography, Paper, Stack, TextField } from '@mu
 import EmotionRecorder from './EmotionRecorder';
 import { generateQuestions, evaluateAnswers } from '../utils/gemini';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationGuard }  from '../components/NavigationGuard'; // adjust path as needed
+
 
 const InterviewPage = () => {
   const location = useLocation();
 
   // 👇 Use passed role or default to React Developer
-  const role = location.state?.role || "React Developer";
+  const role = location.state?.role || "General Knowledge Interview";
   const [conversation, setConversation] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -17,7 +19,6 @@ const InterviewPage = () => {
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewEnded, setInterviewEnded] = useState(false);
   const [evaluation, setEvaluation] = useState(null);
-  const [qaPairs, setQaPairs] = useState([]);
 
 
   const recorderRef = useRef(null);
@@ -40,6 +41,17 @@ const InterviewPage = () => {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [conversation]);
+
+  useEffect(() => {
+    return () => {
+      // 👋 Component is unmounting — stop the recorder & camera
+      recorderRef.current?.stop?.();
+    };
+  }, []);
+
+
+  
+  
 
   
 
@@ -64,7 +76,7 @@ const InterviewPage = () => {
       setCurrentQuestionIndex(nextIndex);
       setConversation(prev => [...prev, { sender: 'llm', message: questions[nextIndex] }]);
     } else {
-      setInterviewEnded(true); // ✅ Let user manually click "Finish Interview"
+      // setInterviewEnded(true); // ✅ Let user manually click "Finish Interview"
       // ⛔️ Don't call handleFinishInterview() automatically here
     }
   };
@@ -82,13 +94,18 @@ const InterviewPage = () => {
     }
   
     console.log("📦 Final QA pairs to evaluate:", finalPairs);
+
+    setInterviewEnded(true);
   
     await recorderRef.current?.stop();
     const result = recorderRef.current?.getResult?.();
   
     let geminiEvaluation = null;
     try {
+      // geminiEvaluation = await evaluateAnswers(finalPairs, role);
       geminiEvaluation = await evaluateAnswers(finalPairs, role);
+
+
       setEvaluation(geminiEvaluation);
       console.log("✅ Evaluation from Gemini:", geminiEvaluation);
     } catch (err) {
@@ -115,6 +132,15 @@ const InterviewPage = () => {
   };
 
   return (
+    <>
+<NavigationGuard
+  when={interviewStarted && !interviewEnded}
+  onLeave={async () => {
+    await recorderRef.current?.stop?.();
+    console.log("🎥 Camera stopped on navigation");
+  }}
+/>
+
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #e0e7ff, #f8fafc)', py: 6 }}>
       <Container maxWidth="md">
         <Typography variant="h4" fontWeight={700} textAlign="center" gutterBottom sx={{ color: '#3f3d56' }}>
@@ -152,7 +178,7 @@ const InterviewPage = () => {
           <EmotionRecorder ref={recorderRef} />
         </Box>
 
-        {interviewStarted && !interviewEnded && (
+        {interviewStarted && !interviewEnded && currentQuestionIndex < questions.length &&(
           <Box mt={3}>
             <TextField
               fullWidth
@@ -166,7 +192,7 @@ const InterviewPage = () => {
             />
           </Box>
         )}
-
+                
         <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
           {!interviewStarted ? (
             <Button
@@ -178,19 +204,31 @@ const InterviewPage = () => {
             </Button>
           ) : (
             <>
-              {currentQuestionIndex < questions.length && (
-                <Button variant="contained" onClick={handleNextQuestion}>Next Question</Button>
+              {currentQuestionIndex < questions.length-1 && !interviewEnded && (
+                <Button
+                  variant="contained"
+                  onClick={handleNextQuestion}
+                  disabled={!userInput.trim()}
+                >
+                  Next Question
+                </Button>
               )}
-              {answers.length >= 3 && (
-                <Button variant="outlined" color="error" onClick={handleFinishInterview}>
+              {answers.length >= 3 && !interviewEnded && (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleFinishInterview}
+                >
                   Finish Interview
                 </Button>
               )}
             </>
           )}
         </Stack>
+
       </Container>
     </Box>
+    </>
   );
 };
 

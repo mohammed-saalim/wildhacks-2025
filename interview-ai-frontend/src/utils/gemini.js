@@ -3,7 +3,7 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 
 export const generateQuestions = async (role) => {
   try {
-    const prompt = `Generate 3 technical interview questions for the role of a ${role}. 
+    const prompt = `Generate 6 interview questions for the role of a ${role}. 
       Each question should be clear and relevant to assess a candidate’s practical understanding.`;
 
     const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
@@ -36,37 +36,55 @@ export const generateQuestions = async (role) => {
 };
 
 export async function evaluateAnswers(pairs, role) {
-    if (!Array.isArray(pairs)) {
-      console.error("❌ Gemini: evaluateAnswers received invalid pairs:", pairs);
-      return "Invalid data for evaluation.";
-    }
-
-    console.log("📤 Final QA pairs sent to Gemini:", JSON.stringify(pairs, null, 2));
-
-  
-    const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
-    const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-  
-    const prompt = `Evaluate the following answers for a ${role} interview. Provide feedback and a score out of 10 for each.
-  
-  ${pairs.map((pair, i) => `Q${i + 1}: ${pair.question}\nA${i + 1}: ${pair.answer}`).join('\n\n')}
-  
-  Give your response in a clear paragraph format.`;
-  
-    try {
-      const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
-  
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || "No evaluation returned.";
-    } catch (error) {
-      console.error("❌ Gemini evaluateAnswers error:", error);
-      return "Evaluation failed.";
-    }
+  if (!Array.isArray(pairs)) {
+    console.error("❌ Gemini: evaluateAnswers received invalid pairs:", pairs);
+    return { summary: "Invalid data for evaluation.", score: 0 };
   }
+
+  console.log("Final QA pairs sent to Gemini:", JSON.stringify(pairs, null, 2));
+
+  const prompt = `Evaluate the following answers for a ${role} interview. 
+  Provide your evaluation in two parts:
+  1. A paragraph summary about the candidate's performance.
+  2. A final score out of 100 (as a number) based on correctness, clarity, and completeness.
+
+  Format your response like this:
+  **Summary:** Your paragraph summary here.
+  **Score:** Numeric value here
+
+  ${pairs.map((pair, i) => `Q${i + 1}: ${pair.question}\nA${i + 1}: ${pair.answer}`).join('\n\n')}
+  `;
+
+  try {
+    const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+
+    const text = response.ok
+      ? await response.json().then(data =>
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || "")
+      : "No evaluation returned.";
+
+    // Extract score from the response using regex
+    const scoreMatch = text.match(/\*\*Score:\*\*\s*(\d+)/i);
+    const numericScore = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+
+    const summaryText = text.replace(/\*\*Score:\*\*\s*\d+/i, '').replace("**Summary:**", '').trim();
+
+    return {
+      summary: summaryText,
+      score: numericScore
+    };
+  } catch (error) {
+    console.error("❌ Gemini evaluateAnswers error:", error);
+    return {
+      summary: "Evaluation failed due to an API error.",
+      score: 0
+    };
+  }
+}
       

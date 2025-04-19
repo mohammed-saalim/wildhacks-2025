@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, Button, Container, Typography, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-
 import img1 from '../assets/img1.png';
 import img2 from '../assets/img2.png';
 import img3 from '../assets/img3.png';
@@ -36,13 +35,13 @@ const HomePage = () => {
           gutterBottom
           sx={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-        Welcome to InView
+          Welcome to InView
         </Typography>
         <Typography variant="h6" color="text.secondary" mb={4}>
           Smart, AI-powered interview preparation with feedback that helps you grow.
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
-          <Button variant="contained" size="large" component={Link} to="/authenticate" sx={{ borderRadius: 3 }}>
+          <Button variant="contained" size="large" component={Link} to="/interview-setup" sx={{ borderRadius: 3 }}>
             Get Started
           </Button>
         </Box>
@@ -53,6 +52,7 @@ const HomePage = () => {
         {features.map((feature, index) => (
           <Grid
             container
+            columns={12}
             spacing={4}
             alignItems="center"
             justifyContent="center"
@@ -62,7 +62,7 @@ const HomePage = () => {
             }}
             key={index}
           >
-            <Grid item xs={12} md={6}>
+            <Grid span={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
                   px: 3,
@@ -78,7 +78,7 @@ const HomePage = () => {
               </Box>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid span={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
                   display: 'flex',
@@ -109,6 +109,5 @@ const HomePage = () => {
     </Box>
   );
 };
-
 
 export default HomePage;

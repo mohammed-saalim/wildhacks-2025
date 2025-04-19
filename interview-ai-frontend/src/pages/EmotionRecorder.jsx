@@ -1,4 +1,3 @@
-// EmotionRecorder.jsx
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 
 const EmotionRecorder = forwardRef((props, ref) => {
@@ -9,52 +8,32 @@ const EmotionRecorder = forwardRef((props, ref) => {
   const recordedVideoUrlRef = useRef(null);
   const [latestEmotion, setLatestEmotion] = useState(null);
   const emotionSnapshots = useRef([]);
-  
+
   const [recorderReady, setRecorderReady] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [initAttempts, setInitAttempts] = useState(0);
 
   useImperativeHandle(ref, () => ({
     start: startInterview,
-    stop: () => stopInterview(), // returns a Promise now
-    getResult: () => {
-      const presentFrames = emotionSnapshots.current.filter(e => e?.candidate_present);
-    
-      if (presentFrames.length === 0) {
-        return {
-          emotionData: {
-            candidate_present: false,
-            emotion_scores: {},
-            stress_level: 0.0,
-            is_confused: false,
-            is_confident: false,
-            focus_score: 0.0
-          },
-          videoUrl: recordedVideoUrlRef.current
-        };
-      }
-    
-      const last = presentFrames[presentFrames.length - 1];
-    
-      return {
-        emotionData: last,
-        videoUrl: recordedVideoUrlRef.current
-      };
-    }
-    
+    stop: () => stopInterview(),
+    getResult: getFinalResult
   }));
 
   useEffect(() => {
-    const initCamera = async () => {
+    let retryTimer;
+  
+    const initCamera = async (attempt = 0) => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         if (videoRef.current) videoRef.current.srcObject = stream;
-
+  
         const mimeTypes = [
           'video/webm;codecs=vp9',
           'video/webm;codecs=vp8',
           'video/webm',
           'video/mp4'
         ];
-
+  
         let recorder;
         for (const type of mimeTypes) {
           if (MediaRecorder.isTypeSupported(type)) {
@@ -62,27 +41,38 @@ const EmotionRecorder = forwardRef((props, ref) => {
             break;
           }
         }
-
+  
         if (!recorder) {
           console.error('No supported MediaRecorder types found.');
           return;
         }
-
+  
         recorder.ondataavailable = (event) => {
           if (event.data.size > 0) recordedChunksRef.current.push(event.data);
         };
-
+  
         mediaRecorderRef.current = recorder;
         setRecorderReady(true);
+        setCameraActive(true);
       } catch (err) {
         console.error('Camera/mic access error:', err);
+        if (attempt < 5) {
+          console.warn(`Retrying camera init... (${attempt + 1})`);
+          retryTimer = setTimeout(() => initCamera(attempt + 1), 5000);
+        } else {
+          alert("Unable to access camera/mic after multiple attempts. Please check your browser settings.");
+        }
       }
     };
-
+  
     initCamera();
-    return () => clearInterval(intervalRef.current);
+  
+    return () => {
+      clearTimeout(retryTimer);
+      clearInterval(intervalRef.current);
+    };
   }, []);
-
+  
   const captureAndSendFrame = async () => {
     const video = videoRef.current;
     if (!video) return;
@@ -105,8 +95,8 @@ const EmotionRecorder = forwardRef((props, ref) => {
         body: formData
       });
       const data = await res.json();
-      emotionSnapshots.current.push(data); // ⬅️ Save each frame's emotion result
-      setLatestEmotion(data); // Keep track of the most recent one
+      emotionSnapshots.current.push(data);
+      setLatestEmotion(data);
       console.log("📸 Emotion response:", data);
     } catch (err) {
       console.error('Backend error:', err);
@@ -120,7 +110,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
     }
 
     recordedChunksRef.current = [];
-    emotionSnapshots.current = []; 
+    emotionSnapshots.current = [];
     mediaRecorderRef.current.start();
     intervalRef.current = setInterval(() => captureAndSendFrame(), 1000);
   };
@@ -135,41 +125,102 @@ const EmotionRecorder = forwardRef((props, ref) => {
           const videoUrl = URL.createObjectURL(blob);
           recordedVideoUrlRef.current = videoUrl;
   
-          // 🔁 Give webcam a moment to stabilize, then send final frame
-          await new Promise(r => setTimeout(r, 500)); // 0.5s delay
+          await new Promise(r => setTimeout(r, 500));
           await captureAndSendFrame();
   
+          // ✅ Stop the webcam stream
+          const stream = videoRef.current?.srcObject;
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            videoRef.current.srcObject = null; // 🔁 release camera feed
+          }
+  
+          setCameraActive(false); // 🔴 Hide red dot
           resolve();
         };
   
         clearInterval(intervalRef.current);
         mediaRecorderRef.current.stop();
       } else {
+        // In case recorder was never started but camera is on
+        const stream = videoRef.current?.srcObject;
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+          videoRef.current.srcObject = null;
+        }
+  
+        setCameraActive(false);
         resolve();
       }
     });
   };
   
-  
+
+  const getFinalResult = () => {
+    const presentFrames = emotionSnapshots.current.filter(e => e?.candidate_present);
+
+    if (presentFrames.length === 0) {
+      return {
+        emotionData: {
+          candidate_present: false,
+          emotion_scores: {},
+          stress_level: 0.0,
+          is_confused: false,
+          is_confident: false,
+          focus_score: 0.0
+        },
+        videoUrl: recordedVideoUrlRef.current
+      };
+    }
+
+    const last = presentFrames[presentFrames.length - 1];
+
+    return {
+      emotionData: last,
+      videoUrl: recordedVideoUrlRef.current
+    };
+  };
+
   return (
-    <video
-      ref={videoRef}
-      autoPlay
-      muted
-      playsInline
-      style={{
-        position: 'fixed',
-        bottom: 100,
-        right: 30,
-        width: '250px',
-        height: '200px',
-        objectFit: 'cover',
-        borderRadius: '12px',
-        zIndex: 1000,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-        backgroundColor: '#000'
-      }}
-    />
+    <>
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        playsInline
+        style={{
+          position: 'fixed',
+          bottom: 100,
+          right: 30,
+          width: '250px',
+          height: '200px',
+          objectFit: 'cover',
+          borderRadius: '12px',
+          zIndex: 1000,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          backgroundColor: '#000'
+        }}
+      />
+      {cameraActive && (
+        <div style={{
+          position: 'fixed',
+          bottom: 90,
+          right: 45,
+          width: '16px',
+          height: '16px',
+          backgroundColor: 'red',
+          borderRadius: '50%',
+          animation: 'blinker 1s linear infinite',
+          zIndex: 1001
+        }} />
+      )}
+
+      <style>
+        {`@keyframes blinker {
+          50% { opacity: 0; }
+        }`}
+      </style>
+    </>
   );
 });
 

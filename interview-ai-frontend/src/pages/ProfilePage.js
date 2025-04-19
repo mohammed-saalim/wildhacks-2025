@@ -19,13 +19,22 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/authenticate');
-        return;
-      }
+
+    if (!token || token === 'demo-token') {
+      setUser({
+        name: 'Demo User',
+        email: 'guest@demo.com',
+        username: 'demo',
+        domain: 'Demo Domain',
+        skills: ['React', 'Node.js'],
+        certifications: ['Demo Certification']
+      });
+      return;
+    }
+
 
       try {
-        const response = await axios.get('http://localhost:5000/api/auth/me', {
+        const response = await axios.get('http://localhost:8000/api/auth/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
