@@ -53,7 +53,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
     "http://localhost:3000",
-    "https://wildhacks-mu.vercel.app"
+    "https://wildhacks-k8p940j35-callhimsaalims-projects.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
