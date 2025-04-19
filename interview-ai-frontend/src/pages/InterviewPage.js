@@ -63,7 +63,6 @@ const InterviewPage = () => {
 
     setTimeout(() => {
       inputRef.current?.focus();
-      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 100);
   };
 
