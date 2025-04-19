@@ -54,6 +54,7 @@ namex==0.0.8
 networkx==3.4.2
 numpy==1.23.3
 oauthlib==3.2.2
+opencv-contrib-python==4.7.0.72
 opencv-python==4.5.5.64
 opt_einsum==3.4.0
 optree==0.14.1
@@ -63,8 +64,8 @@ pandas==2.2.3
 pillow==10.2.0
 proglog==0.1.11
 protobuf==4.25.6
-pyasn1
-pyasn1_modules
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
 pydantic==2.11.2
 pydantic-extra-types==2.10.3
 pydantic-settings==2.8.1
