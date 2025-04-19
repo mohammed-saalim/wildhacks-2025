@@ -4,6 +4,7 @@ import AuthPage from "./pages/AuthPage";
 import InterviewPage from "./pages/InterviewPage";
 import ResumeUploader from "./pages/ResumeUploader";
 import ProfilePage from "./pages/ProfilePage";
+import AboutPage from "./pages/AboutPage";
 import InterviewSetupPage from "./pages/InterviewSetupPage";
 import Navbar from "./components/Navbar";
 import FeedbackPage from "./pages/FeedbackPage";
@@ -25,6 +26,7 @@ function App() {
         <Route path="/interview-setup" element={<InterviewSetupPage />} />
         <Route path="/upload" element={<ResumeUploader />} />
         <Route path="/feedback" element={<FeedbackPage />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
       <Footer />
     </Router>

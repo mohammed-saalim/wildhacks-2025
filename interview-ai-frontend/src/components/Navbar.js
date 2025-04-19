@@ -31,10 +31,13 @@ function Navbar() {
     window.location.reload();
   };
 
-  const navItems = isLoggedIn ? ['Home', 'Interview', 'Upload'] : ['Home'];
+  const navItems = isLoggedIn
+  ? ['Home', 'Interview', 'Upload', 'About']
+  : ['Home', 'About'];
+
 
   return (
-    <Box sx={{ background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)', py: 4 }}>
+    <Box sx={{ bgcolor: '#e0e7ff', py: 4 }}>
       <Container maxWidth="md">
         <Box
           sx={{

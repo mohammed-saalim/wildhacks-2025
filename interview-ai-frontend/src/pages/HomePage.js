@@ -57,9 +57,10 @@ const HomePage = () => {
             alignItems="center"
             justifyContent="center"
             sx={{
-              mb: 10,
+              mb: index === features.length - 1 ? 0 : 10, // no bottom margin after the last section
               flexDirection: index % 2 === 0 ? 'row' : 'row-reverse'
             }}
+            
             key={index}
           >
             <Grid span={{ xs: 12, md: 6 }}>
