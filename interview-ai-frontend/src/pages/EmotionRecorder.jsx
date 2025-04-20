@@ -192,7 +192,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
         playsInline
         style={{
           position: 'fixed',
-          bottom: 100,
+          top: 100,
           right: 30,
           width: '250px',
           height: '200px',
