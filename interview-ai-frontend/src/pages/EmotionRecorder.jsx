@@ -13,6 +13,7 @@ const EmotionRecorder = forwardRef((props, ref) => {
   const [cameraActive, setCameraActive] = useState(false);
   const [initAttempts, setInitAttempts] = useState(0);
   const backendBaseUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
 
   useImperativeHandle(ref, () => ({
@@ -20,6 +21,12 @@ const EmotionRecorder = forwardRef((props, ref) => {
     stop: () => stopInterview(),
     getResult: getFinalResult
   }));
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     let retryTimer;
@@ -194,8 +201,8 @@ const EmotionRecorder = forwardRef((props, ref) => {
           position: 'fixed',
           top: 100,
           right: 30,
-          width: '250px',
-          height: '200px',
+          width: windowWidth < 600 ? '150px' : '250px',
+          height: windowWidth < 600 ? '120px' : '200px',
           objectFit: 'cover',
           borderRadius: '12px',
           zIndex: 1000,
@@ -206,10 +213,10 @@ const EmotionRecorder = forwardRef((props, ref) => {
       {cameraActive && (
         <div style={{
           position: 'fixed',
-          bottom: 90,
-          right: 45,
-          width: '16px',
-          height: '16px',
+          top: windowWidth < 600 ? 100 + 8 : 100 + 12,
+          right: windowWidth < 600 ? 30 + 8 : 30 + 12,
+          width: windowWidth < 600 ? '10px' : '16px',
+          height: windowWidth < 600 ? '10px' : '16px',
           backgroundColor: 'red',
           borderRadius: '50%',
           animation: 'blinker 1s linear infinite',
