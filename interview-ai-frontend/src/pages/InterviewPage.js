@@ -4,6 +4,8 @@ import EmotionRecorder from './EmotionRecorder';
 import { generateQuestions, evaluateAnswers } from '../utils/gemini';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavigationGuard }  from '../components/NavigationGuard'; // adjust path as needed
+import MicRecorderComponent from '../components/MicRecorderComponent';
+
 
 
 const InterviewPage = () => {
@@ -51,8 +53,6 @@ const InterviewPage = () => {
     };
   }, []);
 
-
-  
   
 
   
@@ -64,6 +64,8 @@ const InterviewPage = () => {
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
+
+
   };
 
   const handleNextQuestion = () => {
@@ -75,6 +77,8 @@ const InterviewPage = () => {
     setAnswers(updatedAnswers);
     setConversation(prev => [...prev, { sender: 'user', message: userInput }]);
     setUserInput('');
+
+
   
     const nextIndex = currentQuestionIndex + 1;
   
@@ -102,6 +106,7 @@ const InterviewPage = () => {
     console.log("📦 Final QA pairs to evaluate:", finalPairs);
 
     setInterviewEnded(true);
+
   
     await recorderRef.current?.stop();
     const result = recorderRef.current?.getResult?.();
@@ -186,17 +191,39 @@ const InterviewPage = () => {
 
         {interviewStarted && !interviewEnded && currentQuestionIndex < questions.length &&(
           <Box mt={3}>
-            <TextField
-              fullWidth
-              multiline
-              rows={3}
-              placeholder="Type your answer..."
-              variant="outlined"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              inputRef={inputRef}
+          <Stack direction="row" spacing={1} alignItems="flex-end" mt={3}>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            placeholder="Type or speak your answer..."
+            variant="outlined"
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            inputRef={inputRef}
+          />
+
+          <Box sx={{ display: 'flex', alignItems: 'flex-end', pb: 0.5 }}>
+            <MicRecorderComponent
+              onTranscript={(transcript) => {
+                setUserInput(transcript);
+                inputRef.current?.focus();
+              }}
             />
+          </Box>
+        </Stack>
+        <Typography
+        variant="caption"
+        color="text.secondary"
+        textAlign="left"
+        sx={{ mt: 1, ml: 0.5 }}
+      >
+        🔊 Answers must be spoken in English for recorder to work correctly.
+      </Typography>
+
+
+
           </Box>
         )}
                 

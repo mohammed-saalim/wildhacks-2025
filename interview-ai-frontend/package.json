@@ -6,6 +6,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@google/generative-ai": "^0.24.0",
+    "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.0.1",
     "@okta/okta-auth-js": "^7.11.3",
     "@okta/okta-react": "^6.9.0",
@@ -14,11 +15,13 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.4",
+    "mic-recorder-to-mp3": "^2.2.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.5.0",
     "react-scripts": "5.0.1",
     "recharts": "^2.15.2",
+    "recorder-js": "^1.0.7",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
