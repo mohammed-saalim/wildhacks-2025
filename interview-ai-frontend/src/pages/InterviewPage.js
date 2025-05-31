@@ -30,6 +30,21 @@ const InterviewPage = () => {
 
   const navigate = useNavigate();
 
+
+  useEffect(() => {
+    if (useVoice) {
+      const helloAudio = new Audio('/trump-hello.mp3');
+      const timer = setTimeout(() => {
+        helloAudio.play().catch((err) => {
+          console.error("Audio playback error:", err);
+        });
+      }, 2000); // 2 seconds delay after page loads
+  
+      return () => clearTimeout(timer); // Clean up timer on unmount
+    }
+  }, [useVoice]);
+  
+
   useEffect(() => {
     const fetchQuestions = async () => {
       const qns = await generateQuestions(role);
@@ -117,10 +132,10 @@ const InterviewPage = () => {
 
     setInterviewEnded(true);
 
-    const audio = new Audio('/god-bless-america.mp3');
-    audio.play().catch((err) => {
-      console.error("Audio playback error:", err);
-    });
+    // const audio = new Audio('/god-bless-america.mp3');
+    // audio.play().catch((err) => {
+    //   console.error("Audio playback error:", err);
+    // });
 
   
     await recorderRef.current?.stop();

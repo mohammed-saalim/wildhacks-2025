@@ -3,15 +3,15 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 
 export const generateQuestions = async (role) => {
   try {
-    // const prompt = `Generate 6 interview questions for the role of a ${role}. 
-    //   Each question should be clear and relevant to assess a candidate’s practical understanding. Just give the questions so that I can use them for my AI Interview App, Also include emotion behind words like exclamatory, etc so the AI voice can use them to give good voice`;
+    const prompt = `Generate 6 interview questions for the role of a ${role}. 
+      Each question should be clear and relevant to assess a candidate’s practical understanding. Just give the questions so that I can use them for my AI Interview App, Also include emotion behind words using special characters like exclamatory, (...), UPPER CASE (if necessary) so the AI voice can use them to give good voice, I dont think its needed for technical questions.`;
 
-    const prompt = `Generate exactly 6 concise and relevant interview questions for the role of a ${role}. 
-Each question should assess the candidate’s practical understanding and real-world skills. 
+//     const prompt = `Generate exactly 6 precise and relevant interview questions for the role of a ${role}. 
+// Each question should assess the candidate’s practical understanding and real-world skills, and it should not be too long. 
 
-Format the output as a plain array of questions (no numbering or bullets).
+// Format the output as a plain array of questions (no numbering or bullets), so I can render each question in each iteration.
 
-Also, include emotional cues (like excitement, curiosity, or seriousness) using exclamatory marks, pauses (...), or emphasis where appropriate. These cues will help the AI voice sound expressive and realistic during delivery.`;
+// Also, include emotional cues (like excitement, curiosity, or seriousness) using exclamatory marks, pauses (...), or emphasis where appropriate. These cues will help the AI voice sound expressive and realistic during delivery. (dont send emotions/signs in words just special characters like ! and (...) )`;
 
     const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
       method: "POST",
