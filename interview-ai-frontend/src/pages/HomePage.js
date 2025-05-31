@@ -35,7 +35,7 @@ const HomePage = () => {
           gutterBottom
           sx={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
         >
-          Welcome to InView
+          Welcome to MockMate
         </Typography>
         <Typography variant="h6" color="text.secondary" mb={4}>
           Smart, AI-powered interview preparation with feedback that helps you grow.

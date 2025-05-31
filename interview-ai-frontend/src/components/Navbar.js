@@ -10,7 +10,7 @@ import {
   IconButton,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/InView-light.png';
+import logo from '../assets/mockmate.png';
 import userIcon from '../assets/user-icon-white.png';
 
 function Navbar() {
@@ -57,12 +57,20 @@ function Navbar() {
             component={Link}
             to="/"
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              textDecoration: 'none'
+              fontFamily: '"Playfair Display", serif',
+              fontStyle: 'italic',
+              fontWeight: 600,
+              fontSize: '1.5rem',         // ⬅️ smaller
+              color: 'rgba(255,255,255,0.85)', // ⬅️ subtle off-white
+              textDecoration: 'none',
+              textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+              transition: 'color 0.3s ease-in-out',
+              '&:hover': {
+                color: 'white',
+              }
             }}
           >
-            <img
+            {/* <img
               src={logo}
               alt="InView logo"
               style={{
@@ -73,7 +81,8 @@ function Navbar() {
                 marginRight: '10px',
                 filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.4))'
               }}
-            />
+            /> */}
+            MockMate
           </Typography>
 
           {/* Navigation + User */}

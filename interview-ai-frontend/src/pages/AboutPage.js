@@ -49,10 +49,10 @@ const AboutPage = () => {
           }}
         >
           <Typography variant="h4" fontWeight={700} gutterBottom>
-            About InView
+            About MockMate
           </Typography>
           <Typography variant="body1" paragraph>
-            <strong>InView</strong> is a smart interview preparation platform designed to give users a real-time, AI-powered interview experience. With emotion detection, resume-to-question personalization, and LLM-based feedback, it aims to simulate high-stakes interviews in a stress-free environment.
+            <strong>MockMate</strong> is a smart interview preparation platform designed to give users a real-time, AI-powered interview experience. With emotion detection, resume-to-question personalization, and LLM-based feedback, it aims to simulate high-stakes interviews in a stress-free environment.
           </Typography>
           <Typography variant="body1" paragraph>
             This application was entirely conceptualized, designed, and developed by <strong>Mohammed Saalim Kartapillai</strong>. It integrates cutting-edge technologies like FastAPI, React, MongoDB, TensorFlow (FER), and Gemini API, all containerized and deployed via Render and Vercel.
