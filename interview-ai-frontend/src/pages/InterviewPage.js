@@ -12,7 +12,8 @@ const InterviewPage = () => {
   const location = useLocation();
 
   // 👇 Use passed role or default to React Developer
-  const role = location.state?.role || "General Knowledge Interview";
+  const { role = "General Knowledge Interview", useVoice = false } = location.state || {};
+
   const [conversation, setConversation] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -45,6 +46,15 @@ const InterviewPage = () => {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [conversation]);
+
+  useEffect(() => {
+    const lastMsg = conversation[conversation.length - 1];
+    if (interviewStarted && useVoice && lastMsg?.sender === 'llm') {
+      playTrumpVoice(lastMsg.message);
+    }
+  }, [conversation, useVoice, interviewStarted]);
+  
+  
 
   useEffect(() => {
     return () => {
@@ -107,6 +117,11 @@ const InterviewPage = () => {
 
     setInterviewEnded(true);
 
+    const audio = new Audio('/god-bless-america.mp3');
+    audio.play().catch((err) => {
+      console.error("Audio playback error:", err);
+    });
+
   
     await recorderRef.current?.stop();
     const result = recorderRef.current?.getResult?.();
@@ -131,6 +146,35 @@ const InterviewPage = () => {
       }
     });
   };
+
+  const playTrumpVoice = async (text) => {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/2rAJlOPLNwFC089BJZA1/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': process.env.REACT_APP_ELEVENLABS_API_KEY,
+      },
+      body: JSON.stringify({
+        text,
+        voice_settings: {
+          stability: 0.7,
+          similarity_boost: 0.75
+        }
+      }),
+    });
+  
+    if (!response.ok) {
+      console.error("🚨 ElevenLabs error", await response.text());
+      return;
+    }
+  
+    const audioBlob = await response.blob();
+    const audioURL = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioURL);
+    audio.play().catch(console.error);
+  };
+  
+  
    
     
    
@@ -247,7 +291,7 @@ const InterviewPage = () => {
                   Next Question
                 </Button>
               )}
-              {answers.length >= 3 && !interviewEnded && (
+              {answers.length >= 1 && !interviewEnded && (
                 <Button
                   variant="outlined"
                   color="error"

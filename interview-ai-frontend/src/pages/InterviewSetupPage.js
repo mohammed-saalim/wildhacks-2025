@@ -7,7 +7,9 @@ import {
   MenuItem,
   TextField,
   Button,
-  Paper
+  Paper,
+  FormControlLabel,
+  Switch
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,28 +17,26 @@ const InterviewSetupPage = () => {
   const navigate = useNavigate();
   const [selectedJD, setSelectedJD] = useState('');
   const [customJD, setCustomJD] = useState('');
+  const [useVoice, setUseVoice] = useState(false);
 
   const handleStartInterview = () => {
     const finalJD = selectedJD === 'custom' ? customJD : selectedJD;
     console.log('JD sent to LLM:', finalJD);
-  
-    // ✅ Pass finalJD as route state
-    navigate('/interview', { state: { role: finalJD } });
+
+    navigate('/interview', { state: { role: finalJD, useVoice } });
   };
 
   return (
-    // <Box sx={{ background: 'linear-gradient(to bottom, #eef2ff, #f0f4ff)', minHeight: '100vh', py: 8 }}>
-      <Box
-        sx={{
-          minHeight: '100vh',
-          py: 8,
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/apple-garage.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-
+    <Box
+      sx={{
+        minHeight: '100vh',
+        py: 8,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/apple-garage.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <Container maxWidth="sm">
         <Paper
           elevation={6}
@@ -96,6 +96,18 @@ const InterviewSetupPage = () => {
               />
             </>
           )}
+
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useVoice}
+                onChange={(e) => setUseVoice(e.target.checked)}
+                color="secondary"
+              />
+            }
+            label="Enable AI Voice Interviewer"
+            sx={{ mb: 3 }}
+          />
 
           <Button
             variant="contained"
