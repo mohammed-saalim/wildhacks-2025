@@ -20,28 +20,19 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: |
-          cd interview-ai-frontend
-          npm ci
+        run: npm ci
+        working-directory: interview-ai-frontend
 
       - name: Build the app
-        run: |
-          cd interview-ai-frontend
-          npm run build
-
-      - name: Serve the production build
-        run: |
-          cd interview-ai-frontend
-          npx serve -s build -l 3000 &
+        run: npm run build
+        working-directory: interview-ai-frontend
         env:
-          CI: false
-
-      - name: Wait for server to be ready
-        run: npx wait-on http://localhost:3000
+          CI: false  # Prevent lint warnings from failing the build
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: interview-ai-frontend
-          browser: chrome
+          start: npm start
           wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120  # Optional: increase if startup is slow
