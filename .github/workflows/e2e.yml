@@ -27,7 +27,7 @@ jobs:
       - name: Start frontend dev server
         run: |
           cd interview-ai-frontend
-          npm run dev &
+          npm start &
         env:
           CI: true
 
