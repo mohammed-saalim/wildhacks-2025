@@ -27,12 +27,26 @@ jobs:
         run: npm run build
         working-directory: interview-ai-frontend
         env:
-          CI: false  # Prevent lint warnings from failing the build
+          CI: false
+          REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
+
+      - name: Start dev server
+        run: npm start &
+        working-directory: interview-ai-frontend
+        env:
+          REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
+          CI: false
+
+      - name: Wait for dev server to be ready
+        run: npx wait-on http://localhost:3000
 
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: interview-ai-frontend
           start: npm start
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120  # Optional: increase if startup is slow
+          wait-on: http://localhost:3000
+          wait-on-timeout: 60
+        env:
+          REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
+          CI: false
