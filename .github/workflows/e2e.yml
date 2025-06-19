@@ -39,4 +39,4 @@ jobs:
         with:
           working-directory: interview-ai-frontend
           wait-on: 'http://localhost:3000'
-          start: npm run dev
+          start: npm start
