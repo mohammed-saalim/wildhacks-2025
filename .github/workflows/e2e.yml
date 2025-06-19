@@ -34,7 +34,7 @@ jobs:
           cd interview-ai-frontend
           npx serve -s build -l 3000 &
         env:
-          CI: true
+          CI: false
 
       - name: Wait for server to be ready
         run: npx wait-on http://localhost:3000
