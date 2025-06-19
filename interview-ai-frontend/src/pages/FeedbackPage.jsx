@@ -202,7 +202,7 @@ const FeedbackPage = () => {
           )} */}
           {evaluation && (
           <Alert severity="success" sx={{ mt: 5 }}>
-            <Typography fontWeight={600}>Gemini Evaluation</Typography>
+            <Typography fontWeight={600} data-testid="gemini-summary-text">Gemini Evaluation</Typography>
                       <Typography whiteSpace="pre-line">
             {typeof evaluation.summary === 'string' 
               ? evaluation.summary 
@@ -247,8 +247,8 @@ const FeedbackPage = () => {
               textAlign: 'center'
             }}
           >
-            <Typography variant="h5" fontWeight={700}>Gemini Evaluation</Typography>
-            <Typography variant="h2" fontWeight={800} sx={{ my: 1 }}>
+            <Typography variant="h5" fontWeight={700} data-testid="gemini-summary-title">Gemini Evaluation</Typography>
+            <Typography variant="h2" fontWeight={800} sx={{ my: 1 }} data-testid="gemini-score">
               {Math.round(evaluation.score)}%
             </Typography>
             <Typography variant="subtitle1">

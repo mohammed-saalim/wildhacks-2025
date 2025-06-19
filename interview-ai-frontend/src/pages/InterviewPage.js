@@ -255,6 +255,7 @@ const InterviewPage = () => {
             fullWidth
             multiline
             rows={3}
+            data-testid="answer-input"
             placeholder="Type or speak your answer..."
             variant="outlined"
             value={userInput}

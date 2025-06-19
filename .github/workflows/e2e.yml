@@ -1,0 +1,42 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd interview-ai-frontend
+          npm ci
+
+      - name: Start frontend dev server
+        run: |
+          cd interview-ai-frontend
+          npm run dev &
+        env:
+          CI: true
+
+      - name: Wait for dev server to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: interview-ai-frontend
+          wait-on: 'http://localhost:3000'
+          start: npm run dev

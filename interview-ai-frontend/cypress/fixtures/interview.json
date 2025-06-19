@@ -1,0 +1,14 @@
+{
+    "candidates": [
+      {
+        "content": {
+          "parts": [
+            {
+              "text": "Tell me about yourself.\nWhat are the key features of React?\nExplain the concept of virtual DOM.\nHow do you handle state management in large applications?\nDescribe a time you solved a difficult bug.\nWhy do you want this role?"
+            }
+          ]
+        }
+      }
+    ]
+  }
+  

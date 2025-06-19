@@ -67,6 +67,7 @@ const InterviewSetupPage = () => {
               borderRadius: 2,
               mb: selectedJD === 'custom' ? 2 : 4
             }}
+            data-testid="job-select"
           >
             <MenuItem value="" disabled>General Knowledge Interview</MenuItem>
             <MenuItem value="Frontend Developer at SaaS Co.">Frontend Developer at SaaS Co.</MenuItem>
@@ -93,6 +94,7 @@ const InterviewSetupPage = () => {
                   borderRadius: 2,
                   mb: 4
                 }}
+                inputProps={{ 'data-testid': 'custom-jd-input' }}
               />
             </>
           )}
