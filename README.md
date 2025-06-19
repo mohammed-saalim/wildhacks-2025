@@ -1,9 +1,21 @@
-# InView 🎙️
+# MockMate 🎙️
 
-InView is a smart AI-powered interview preparation platform that provides personalized questions, emotion analysis, and feedback to help candidates improve their performance.
+MockMate is a smart AI-powered interview preparation platform that provides personalized questions, emotion analysis, and feedback to help candidates improve their performance.
 
 🟣 **App is Live at**: [https://wildhacks-mu.vercel.app](https://wildhacks-mu.vercel.app)  
-📝 **Submitted for WildHacks 2025 by Northwestern University**
+📝 **Submitted for DePaul University HackDepaul 20205 and secured the first prize and also the prize for Most technically Impressive project**
+
+
+## Certificate for First Prize and Most technically Impressive project
+
+
+![WhatsApp Image 2025-06-19 at 4 06 19 PM](https://github.com/user-attachments/assets/cc2b204c-e35d-469d-88b2-2eb05aedef24)
+
+
+
+![WhatsApp Image 2025-06-19 at 4 05 55 PM](https://github.com/user-attachments/assets/e3184267-3bd7-4804-b562-24f4f46489ff)
+
+
 
 ---
 
@@ -13,6 +25,8 @@ InView is a smart AI-powered interview preparation platform that provides person
 - **Backend**: FastAPI  
 - **Database**: MongoDB Atlas  
 - **LLM API**: Gemini (Google AI)
+- **Elevenlabs** : AI Voice
+- **End to End Testing**: Cypress
 
 ---
 
@@ -67,6 +81,14 @@ uvicorn main:app --host=0.0.0.0 --port=8000
 ```
 
 ---
+
+
+
+
+
+## Cypress Tests
+![Cypress Tests](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/cypress.yml/badge.svg)
+
 
 ## 🙋 Author
 
