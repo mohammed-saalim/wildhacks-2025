@@ -11,42 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: 🔧 Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm ci
         working-directory: interview-ai-frontend
 
-      - name: Build the app
+      - name: 🏗️ Build the app
         run: npm run build
         working-directory: interview-ai-frontend
         env:
           CI: false
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
 
-      - name: Start dev server
-        run: npm start &
+      - name: 🚀 Serve the built app
+        run: npx serve -s build &
         working-directory: interview-ai-frontend
         env:
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
-          CI: false
 
-      - name: Wait for dev server to be ready
+      - name: 🕒 Wait for dev server to be ready
         run: npx wait-on http://localhost:3000
 
-      - name: Run Cypress tests
+      - name: ✅ Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: interview-ai-frontend
-          start: npm start
           wait-on: http://localhost:3000
           wait-on-timeout: 60
         env:
           REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
-          CI: false
