@@ -190,7 +190,7 @@ const InterviewPage = () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'xi-api-key': 'sk_0d66951faf24561f682ef4c02b18641189dddb26a1bc9ad4',
+        'xi-api-key': 'sk_4382fd87aa54a497c37fbb8ff261ec5028b6655ced8b6017',
       },
       body: JSON.stringify({
         text,
