@@ -75,6 +75,12 @@ const InterviewPage = () => {
     return () => {
       // 👋 Component is unmounting — stop the recorder & camera
       recorderRef.current?.stop?.();
+      
+      // Stop any playing audio
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.currentTime = 0;
+      }
     };
   }, []);
 
@@ -132,6 +138,13 @@ const InterviewPage = () => {
 
     setInterviewEnded(true);
 
+    // Stop any playing audio when interview ends
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      console.log("🔇 Stopped audio - interview ended");
+    }
+
     // const audio = new Audio('/god-bless-america.mp3');
     // audio.play().catch((err) => {
     //   console.error("Audio playback error:", err);
@@ -162,7 +175,17 @@ const InterviewPage = () => {
     });
   };
 
+  // Keep track of current audio to stop it when new question comes
+  const currentAudioRef = useRef(null);
+
   const playTrumpVoice = async (text) => {
+    // Stop any currently playing audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      console.log("🔇 Stopped previous audio for new question");
+    }
+
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/2rAJlOPLNwFC089BJZA1/stream`, {
       method: 'POST',
       headers: {
@@ -186,6 +209,10 @@ const InterviewPage = () => {
     const audioBlob = await response.blob();
     const audioURL = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioURL);
+    
+    // Store reference to current audio
+    currentAudioRef.current = audio;
+    
     audio.play().catch(console.error);
   };
   
