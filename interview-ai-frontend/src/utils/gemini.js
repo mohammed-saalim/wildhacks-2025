@@ -3,7 +3,8 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 
 export const generateQuestions = async (role) => {
   try {
-    const prompt = `Generate 6 interview questions for the role of a ${role}...`; // Your full prompt
+    const prompt = `Generate 6 interview questions for the role of a ${role}. 
+      Each question should be clear and relevant to assess a candidate’s practical understanding. Just give the questions so that I can use them for my AI Interview App, Also include emotion behind words using special characters like exclamatory, (...), UPPER CASE (if necessary) so the AI voice can use them to give good voice, I dont think its needed for technical questions.`;
 
     const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
       method: "POST",
