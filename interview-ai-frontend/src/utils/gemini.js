@@ -41,7 +41,7 @@ export const generateQuestions = async (role) => {
   } catch (error) {
     // This will now log the more specific error message from the API
     console.error("❌ Gemini generateQuestions error:", error);
-    return [];
+    throw error; // Re-throw the error so InterviewPage.js can catch it
   }
 };
 

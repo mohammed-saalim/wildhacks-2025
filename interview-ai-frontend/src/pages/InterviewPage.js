@@ -22,6 +22,7 @@ const InterviewPage = () => {
   const [interviewStarted, setInterviewStarted] = useState(false);
   const [interviewEnded, setInterviewEnded] = useState(false);
   const [evaluation, setEvaluation] = useState(null);
+  const [geminiError, setGeminiError] = useState(false);
 
 
   const recorderRef = useRef(null);
@@ -47,10 +48,15 @@ const InterviewPage = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const qns = await generateQuestions(role);
-      setQuestions(qns);
-      if (qns.length > 0) {
-        setConversation([{ sender: 'llm', message: qns[0] }]);
+      try {
+        const qns = await generateQuestions(role);
+        setQuestions(qns);
+        if (qns.length > 0) {
+          setConversation([{ sender: 'llm', message: qns[0] }]);
+        }
+      } catch (error) {
+        console.error('❌ Gemini service error:', error);
+        setGeminiError(true);
       }
     };
     fetchQuestions();
@@ -316,13 +322,21 @@ const InterviewPage = () => {
                 
         <Stack direction="row" spacing={2} justifyContent="center" mt={4}>
           {!interviewStarted ? (
-            <Button
-              variant="contained"
-              onClick={handleStartInterview}
-              sx={{ minWidth: 180, backgroundColor: '#3b82f6', textTransform: 'none' }}
-            >
-              Start Interview
-            </Button>
+            <>
+              {geminiError && (
+                <Typography color="error" textAlign="center" sx={{ mb: 2 }}>
+                  Gemini API is busy. Please try again later.
+                </Typography>
+              )}
+              <Button
+                variant="contained"
+                onClick={handleStartInterview}
+                disabled={geminiError}
+                sx={{ minWidth: 180, backgroundColor: '#3b82f6', textTransform: 'none' }}
+              >
+                Start Interview
+              </Button>
+            </>
           ) : (
             <>
               {currentQuestionIndex < questions.length-1 && !interviewEnded && (
