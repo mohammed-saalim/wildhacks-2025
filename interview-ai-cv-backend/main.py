@@ -56,6 +56,7 @@ app.add_middleware(
         "https://wildhacks-git-main-callhimsaalims-projects.vercel.app",
         "https://wildhacks-hnwbfa1iv-callhimsaalims-projects.vercel.app",
         "https://wildhacks-mu.vercel.app",
+        "https://hackdepaul-mockmate.vercel.app/"
         "https://wildhacks-callhimsaalims-projects.vercel.app"
     ],
     allow_credentials=True,
