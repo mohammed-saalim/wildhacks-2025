@@ -3,15 +3,7 @@ const BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 
 export const generateQuestions = async (role) => {
   try {
-    const prompt = `Generate 6 interview questions for the role of a ${role}. 
-      Each question should be clear and relevant to assess a candidate’s practical understanding. Just give the questions so that I can use them for my AI Interview App, Also include emotion behind words using special characters like exclamatory, (...), UPPER CASE (if necessary) so the AI voice can use them to give good voice, I dont think its needed for technical questions.`;
-
-//     const prompt = `Generate exactly 6 precise and relevant interview questions for the role of a ${role}. 
-// Each question should assess the candidate’s practical understanding and real-world skills, and it should not be too long. 
-
-// Format the output as a plain array of questions (no numbering or bullets), so I can render each question in each iteration.
-
-// Also, include emotional cues (like excitement, curiosity, or seriousness) using exclamatory marks, pauses (...), or emphasis where appropriate. These cues will help the AI voice sound expressive and realistic during delivery. (dont send emotions/signs in words just special characters like ! and (...) )`;
+    const prompt = `Generate 6 interview questions for the role of a ${role}...`; // Your full prompt
 
     const response = await fetch(`${BASE_URL}?key=${GEMINI_API_KEY}`, {
       method: "POST",
@@ -27,6 +19,15 @@ export const generateQuestions = async (role) => {
       }),
     });
 
+    // THIS IS THE CRUCIAL NEW PART
+    if (!response.ok) {
+      // Try to get the detailed error message from the API's response body
+      const errorData = await response.json();
+      console.error("❌ Gemini API Error Details:", errorData.error);
+      // Throw a more informative error
+      throw new Error(errorData.error.message);
+    }
+
     const data = await response.json();
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     const questions = text
@@ -37,6 +38,7 @@ export const generateQuestions = async (role) => {
     console.log("📩 Questions from Gemini:", questions);
     return questions;
   } catch (error) {
+    // This will now log the more specific error message from the API
     console.error("❌ Gemini generateQuestions error:", error);
     return [];
   }
