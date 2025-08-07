@@ -9,6 +9,7 @@ import InterviewSetupPage from "./pages/InterviewSetupPage";
 import Navbar from "./components/Navbar";
 import FeedbackPage from "./pages/FeedbackPage";
 import Footer from "./components/Footer";
+import { Analytics } from '@vercel/analytics/react';
 
 
 
@@ -17,6 +18,7 @@ function App() {
 
   return (
     <Router>
+      <Analytics />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
